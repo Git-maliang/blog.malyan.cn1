@@ -38,7 +38,7 @@ $this->registerJsFile('/js/jquery.nanoscroller.min.js', ['depends' => \app\asset
 </div>
 <!-- 轮播end -->
 <div class="row">
-    <div class="col-sm-3 hidden-xs">
+    <div class="col-sm-3 hidden-xs hidden-sm">
         <div class="panel panel-default" style="background: url(http://www.yiichina.com/images/user-bg.jpg) #fff; background-size:100% 120px; background-repeat:no-repeat;">
             <div class="panel-body">
                 <div class="user">
@@ -53,7 +53,7 @@ $this->registerJsFile('/js/jquery.nanoscroller.min.js', ['depends' => \app\asset
             </div>
         </div>
         <!-- 友情链接start -->
-        <div class="panel panel-default hidden-xs">
+        <div class="panel panel-default hidden-xs hidden-sm">
             <div class="panel-heading">
                 <h2 class="panel-title">
                     <i class="fa fa-link"></i>
