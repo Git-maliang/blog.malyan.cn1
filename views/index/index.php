@@ -12,6 +12,7 @@ use yii\helpers\Html;
 use yii\bootstrap\Carousel;
 use app\models\UserDynamic;
 
+$this->title = '青春也迷茫';
 $this->registerCssFile('/css/nanoscroller.css');
 $this->registerJsFile('/js/jquery.nanoscroller.min.js', ['depends' => \app\assets\AppAsset::className()]);
 ?>
