@@ -39,7 +39,7 @@ $this->registerJsFile('/js/jquery.nanoscroller.min.js', ['depends' => \app\asset
 <!-- 轮播end -->
 <div class="row">
     <div class="col-sm-3 hidden-xs">
-        <div class="panel panel-default" style="background: url(http://www.yiichina.com/images/user-bg.jpg) #fff; background-size:100% 120px; background-repeat:no-repeat;">
+        <div class="panel panel-default" style="background: url(/images/user-bg.jpg) #fff; background-size:100% 120px; background-repeat:no-repeat;">
             <div class="panel-body">
                 <div class="user">
                     <img class="avatar" src="/images/a4.jpg" alt="wkf928592">
