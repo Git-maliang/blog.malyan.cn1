@@ -93,7 +93,7 @@ $this->registerJsFile('/js/jquery.nanoscroller.min.js', ['depends' => \app\asset
     <div class="col-sm-9">
         <div class="panel panel-default  main-content">
             <div class="panel-body">
-                <ul id="w1" class="media-list">
+                <ul class="media-list">
                     <?php foreach ($userDynamic as $val){ ?>
                     <li class="media">
                         <div class="media-left">
