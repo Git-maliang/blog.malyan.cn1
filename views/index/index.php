@@ -152,5 +152,5 @@ if($(window).width() >= 768){
     } 
 }
 EOD;
-$this->registerJs($js);
+$this->registerJs($js, ['depends' => \app\assets\AppAsset::className()]);
 ?>
