@@ -8,7 +8,7 @@ return [
     'password' => $SYSTEM_CONFIG['SYSTEM_DB_PASS'],
     'charset' => $SYSTEM_CONFIG['SYSTEM_DB_CHARSET'],
     'tablePrefix' => $SYSTEM_CONFIG['SYSTEM_DB_TABLE_PREFIX'],
-    // 从库的通用配置
+    /*// 从库的通用配置
     'slaveConfig' => [
         'username' => $SYSTEM_CONFIG['SYSTEM_DB_USER_R'],
         'password' => $SYSTEM_CONFIG['SYSTEM_DB_PASS_R'],
@@ -25,5 +25,5 @@ return [
         [
             'dsn' => 'mysql:host=' . $SYSTEM_CONFIG['SYSTEM_DB_HOST_R2'] . ':' . $SYSTEM_CONFIG['SYSTEM_DB_PORT_R'] . ';dbname=' . $SYSTEM_CONFIG['SYSTEM_DB_NAME_R']
         ]
-    ],
+    ],*/
 ];
