@@ -9,35 +9,75 @@
 namespace app\controllers;
 
 use YII;
+use yii\helpers\Url;
 use app\models\User;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use yii\bootstrap\ActiveForm;
+use app\models\form\LoginForm;
 
 class UserController extends Controller
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['logout'],
+                'rules' => [
+                    [
+                        'actions' => ['logout'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'logout' => ['post'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * 登录
+     * @return array|int|string
+     */
     public function actionLogin()
     {
+        if(!Yii::$app->user->isGuest){
+            return $this->goBack();
+        }
+        
         $this->layout = 'form';
-        $user = new User();
+        $model = new LoginForm();
         $request = Yii::$app->request;
 
-        if($request->isAjax && $user->load($request->post())){
+        if($request->isAjax && $model->load($request->post())){
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            return ActiveForm::validate($user);
+            return ActiveForm::validate($model);
         }
 
         if($request->isPost){
-            if($user->load($request->post()) && $user->validate()){
-                return 1;
+            if($model->load($request->post()) && $model->login()){
+                return $this->goBack();
             }
         }
         return $this->render('login', [
-            'user' => $user
+            'model' => $model
         ]);
     }
 
     public function actionLogout()
     {
+        Yii::$app->user->logout();
 
+        return $this->goBack();
     }
 
     public function actionRegister()

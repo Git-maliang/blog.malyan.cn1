@@ -8,6 +8,9 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
+use app\models\form\CommentForm;
+use yii\db\ActiveQuery;
 use Yii;
 use app\models\Article;
 use yii\web\UploadedFile;
@@ -44,7 +47,7 @@ class ArticleController extends Controller
             if($sort == Article::SORT_NEW){
                 $query->orderBy([$field => SORT_DESC]);
             }else{
-                $query->innerJoinWith(['article' => function($query) use($field){
+                $query->innerJoinWith(['article' => function(ActiveQuery $query) use($field){
                     $query->orderBy([$field => SORT_DESC]);
                 }]);
             }
@@ -75,14 +78,42 @@ class ArticleController extends Controller
         if(!$userDynamic || !$article){
             throw new NotFoundHttpException('非法请求');
         }
+
+        // 评论和回复
+        $comment = new Comment();
+        $request = Yii::$app->request;
+        if($request->isPjax) {
+            $comment->aid = $id;
+            if ($comment->load($request->post()) && $comment->validate()) {
+                $trans = Yii::$app->db->beginTransaction();
+                try {
+                    $dynamic = new UserDynamic();
+                    $dynamic->category = UserDynamic::CATEGORY_COMMENT;
+                    $dynamic->save();
+                    $comment->id = $dynamic->id;
+                    $comment->save(false);
+                    $trans->commit();
+                    $comment = new Comment();
+                } catch (\Exception $e) {
+                    $trans->rollBack();
+                }
+            }
+        }
+
         // 更新浏览量
         if($this->isBrowse($id)){
             $article->browse_num ++;
             $article->save(false);
         }
+
+        // 评论内容
+        $comments = $comment->getComments($id);
+        
         return $this->render('detail',[
             'userDynamic' => $userDynamic,
-            'article' => $article
+            'article' => $article,
+            'comment' => $comment,
+            'comments' => $comments,
         ]);
     }
 

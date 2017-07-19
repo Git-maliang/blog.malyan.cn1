@@ -32,6 +32,5 @@ class Controller extends \yii\web\Controller
             }
         }
         return false;
-
     }
 }

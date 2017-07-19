@@ -67,7 +67,7 @@ return [
 
     // 错误页面
     'errorHandler' => [
-        'errorAction' => 'erroe/error',
+        'errorAction' => 'error/error',
     ],
 
     // 路由配置

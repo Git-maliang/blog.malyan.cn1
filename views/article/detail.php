@@ -6,10 +6,15 @@
  * Time: 下午3:12
  */
 /* @var $article \app\models\Article */
+/* @var $reply \app\models\form\CommentForm */
+/* @var $comment \app\models\Comment */
 /* @var $userDynamic \app\models\UserDynamic */
+/* @var $comments */
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\helpers\Markdown;
+use yii\widgets\Pjax;
+
 $this->title = $article->title;
 $this->params['breadcrumbs'] = [
     ['label' => '文章', 'url' => ['article/index']],
@@ -82,9 +87,10 @@ $this->params['breadcrumbs'] = [
         <div class="panel panel-default">
             <div class="panel-body">
                 <div id="comments">
+                    <?php Pjax::begin(['id' => 'countries']); ?>
                     <div class="page-header">
-                        <?= Html::tag('h2','共 <em>2</em> 条评论'); ?>
-                        <?=
+                        <?= Html::tag('h2','共 <em>' . count($comments) . '</em> 条评论'); ?>
+                        <!--
                         Nav::widget([
                             'options' => ['class' => 'nav nav-tabs nav-sub'],
                             'items' => [
@@ -92,139 +98,79 @@ $this->params['breadcrumbs'] = [
                                 ['label' => '最后评论' ,'url' => '/desc', 'active' => false],
                             ]
                         ]);
-                        ?>
+                        -->
                     </div>
-                    <ul id="w1" class="media-list">
-                        <li class="media" data-key="5512">
-                            <div class="media-left">
-                                <a href="/user/38329" rel="author">
-                                    <img class="media-object" src="/images/a2.jpg" alt="wushshsha">
-                                </a>
-                            </div>
-                            <div class="media-body">
-                                <div class="media-heading">
-                                    <a href="/user/38329" rel="author">wushshsha</a>
-                                    评论于 2017-05-12 10:01
-                                    <span class="pull-right">
-                                    <a class="report" data-type="comment" data-id="5512" href="javascript:void(0);">
-                                        <i class="fa fa-flag-checkered"></i>
-                                        举报
+                    <?php if($comments): ?>
+                        <ul class="media-list">
+                        <?php foreach ($comments as $val): ?>
+                            <li class="media">
+                                <div class="media-left">
+                                    <a href="javascript:void(0)" rel="author">
+                                        <img class="media-object" src="<?= Html::encode($val['dynamic']['user']['avatar']); ?>" alt="wushshsha">
                                     </a>
-                                    </span>
                                 </div>
-                                <div class="media-content">
-                                    <p>mark，以后会用到</p>
-                                    <div class="hint">
-                                        共
-                                        <em>2</em>
-                                        条回复
+                                <div class="media-body">
+                                    <div class="media-heading">
+                                        <a href="javascript:void(0)" rel="author"><?= Html::encode($val['dynamic']['user']['nickname']); ?></a>
+                                        评论于 <?= date('Y-m-d H:i:s', $val['dynamic']['created_at']); ?>
                                     </div>
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <a href="/user/32493" rel="author">
-                                                <img class="media-object" src="/images/a7.jpg" alt="iceluo">
-                                            </a>
-                                        </div>
-                                        <div class="media-body">
-                                            <div class="media-heading">
-                                                <a href="/user/32493" rel="author">iceluo</a>
-                                                评论于 2015-08-24 14:02
-                                            <span class="pull-right">
-                                            <a class="reply" href="javascript:void(0);">
-                                                <i class="fa fa-reply"></i>
-                                                回复
-                                            </a>
-                                            </span>
+                                    <div class="media-content">
+                                        <p><?= Html::encode($val['content']); ?></p>
+                                        <?php if(isset($val['child'])): ?>
+                                            <div class="hint">
+                                                共
+                                                <em><?= count($val['child']); ?></em>
+                                                条回复
                                             </div>
-                                            <div class="media-content">
-                                                <p>foreach</p>
+                                            <?php foreach ($val['child'] as $v): ?>
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <a href="javascript:void(0)" rel="author">
+                                                            <img class="media-object" src="<?= Html::encode($v['dynamic']['user']['avatar']); ?>" alt="iceluo">
+                                                        </a>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="media-heading">
+                                                            <a href="javascript:void(0)" rel="author"><?= Html::encode($v['dynamic']['user']['nickname']); ?></a>
+                                                            评论于 <?= date('Y-m-d H:i:s', $v['dynamic']['created_at']); ?>
+
+                                                            <?php if(Yii::$app->user->id != $v['dynamic']['user_id']): ?>
+                                                            <span class="pull-right">
+                                                                <a class="reply" href="javascript:void(0);" data-uid="<?= $v['dynamic']['user_id']; ?>" data-pid="<?= $val['id']; ?>" data-nickname="<?= Html::encode($v['dynamic']['user']['nickname']); ?>">
+                                                                    <i class="fa fa-reply"></i>
+                                                                    回复
+                                                                </a>
+                                                            </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="media-content">
+                                                            <p><?= $v['uid'] ? Html::a('@'. $val['user'][$v['uid']]['nickname'], 'javascript:void(0)') . ' ' : ''; ?><?= Html::encode($v['content']); ?></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    <div class="media-action">
+                                        <a class="reply" href="javascript:void(0);" data-uid="0" data-pid="<?= $val['id']; ?>" data-nickname="<?= Html::encode($val['dynamic']['user']['nickname']); ?>">
+                                            <i class="fa fa-reply"></i>
+                                            回复
+                                        </a>
+                                        <div class="reply-box" style="display: none">
+                                            <div class="form-group field-comment-content required">
+                                                <textarea class="form-control" maxlength="20" rows="3" aria-required="true"></textarea>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <a href="/user/32674" rel="author">
-                                                <img class="media-object" src="/images/a8.jpg" alt="晦涩de咚">
-                                            </a>
-                                        </div>
-                                        <div class="media-body">
-                                            <div class="media-heading">
-                                                <a href="/user/32674" rel="author" data-original-title="" title="">晦涩de咚</a>
-                                                评论于 2015-11-26 10:12
-                                            <span class="pull-right">
-                                            <a class="reply" href="javascript:void(0);">
-                                                <i class="fa fa-reply"></i>
-                                                回复
-                                            </a>
-                                            </span>
-                                            </div>
-                                            <div class="media-content">
-                                                <p>
-                                                    <a href="/user/32493" rel="author" data-original-title="" title="">@iceluo</a>
-                                                    确实不错
-                                                </p>
-                                            </div>
+                                            <button type="button" class="btn btn-default reply-button">评论</button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="media-action">
-                                    <a class="reply" href="javascript:void(0);">
-                                        <i class="fa fa-reply"></i>
-                                        回复
-                                    </a>
-                                    <span class="pull-right">
-                                        <a class="vote up" href="javascript:void(0);" title="" data-type="comment" data-id="5512" data-toggle="tooltip" data-original-title="顶">
-                                            <i class="fa fa-thumbs-o-up"></i>
-                                            0
-                                        </a>
-                                        <a class="vote down" href="javascript:void(0);" title="" data-type="comment" data-id="5512" data-toggle="tooltip" data-original-title="踩">
-                                            <i class="fa fa-thumbs-o-down"></i>
-                                            0
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="media" data-key="5516">
-                            <div class="media-left">
-                                <a href="/user/28426" rel="author">
-                                    <img class="media-object" src="/images/a3.jpg" alt="qc100f">
-                                </a>
-                            </div>
-                            <div class="media-body">
-                                <div class="media-heading">
-                                    <a href="/user/28426" rel="author">qc100f</a>
-                                    评论于 2017-05-12 17:08
-                                    <span class="pull-right">
-                                    <a class="report" data-type="comment" data-id="5516" href="javascript:void(0);">
-                                        <i class="fa fa-flag-checkered"></i>
-                                        举报
-                                    </a>
-                                    </span>
-                                </div>
-                                <div class="media-content">
-                                    <p>挺好，以后会用到</p>
-                                </div>
-                                <div class="media-action">
-                                    <a class="reply" href="javascript:void(0);">
-                                        <i class="fa fa-reply"></i>
-                                        回复
-                                    </a>
-                                    <span class="pull-right">
-                                        <a class="vote up" href="javascript:void(0);" title="" data-type="comment" data-id="5516" data-toggle="tooltip" data-original-title="顶">
-                                            <i class="fa fa-thumbs-o-up"></i>
-                                            0
-                                        </a>
-                                        <a class="vote down" href="javascript:void(0);" title="" data-type="comment" data-id="5516" data-toggle="tooltip" data-original-title="踩">
-                                            <i class="fa fa-thumbs-o-down"></i>
-                                            0
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                            </li>
+                        <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        暂无评论
+                    <?php endif; ?>
                 </div>
+                <?php Pjax::end(); ?>
             </div>
         </div>
         <div class="panel panel-default">
@@ -234,15 +180,73 @@ $this->params['breadcrumbs'] = [
                     <div class="page-header">
                         <h2>发表评论</h2>
                     </div>
+                    <?php if(Yii::$app->user->isGuest): ?>
                     <div class="well danger">
-                        您需要登录后才可以评论。
-                        <a href="/login">登录</a>
-                        |
-                        <a href="/signup">立即注册</a>
+                            您需要登录后才可以评论。
+                            <?= Html::a('登录', 'javascript:void(0)', [
+                                'data-title' => '登录',
+                                'data-url' => '/user/login',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#page-modal',
+                                'class' => 'page-modal',
+                            ]); ?>
+                            |
+                            <?= Html::a('注册', 'javascript:void(0)'); ?>
                     </div>
+                     <?php else: ?>
+                        <?= $this->render('comment', [
+                            'comment' => $comment,
+                        ]); ?>
+                        <?= $this->render('reply', [
+                            'comment' => $comment,
+                        ]); ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
     <?= $this->render('right-content'); ?>
 </div>
+<?php
+if(!Yii::$app->user->isGuest){
+
+    $uidId = Html::getInputId($comment, 'uid');
+    $pidId = Html::getInputId($comment, 'pid');
+    $contentId = Html::getInputId($comment, 'content');
+    $js = <<<EOD
+    $(document).on("click", ".reply",  function() {
+        var replyBox = $(this).parents(".media-content").find(".reply-box");
+        var form = $("#reply-form");
+        form.find("#{$uidId}").val($(this).data("uid"));
+        form.find("#{$pidId}").val($(this).data("pid"));
+        replyBox.find("textarea").attr("placeholder", "@"+$(this).data("nickname")).val("");
+        $(".reply-box").hide();
+        replyBox.show();
+    });
+    
+    $(document).on("blur", ".reply-box textarea", function() {
+		var content = $(this).val();
+		if(content.length <=2 ){
+			$(this).parent().addClass("has-error");
+		}else{
+			$(this).parent().removeClass("has-error");
+		}
+	});
+	
+	$(document).on("click", ".reply-button", function(){
+	    var textarea = $(this).siblings('div').find('textarea');
+	    var content = textarea.val();
+	    if(content.length <=2 ){
+			textarea.parent().addClass("has-error");
+			return false;
+		}else{
+			textarea.parent().removeClass("has-error");
+		}
+		
+		form = $("#reply-form").find("#{$contentId}").val(content);
+		form.submit();
+	});
+EOD;
+    $this->registerJs($js);
+}
+?>
